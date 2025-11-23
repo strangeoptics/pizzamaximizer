@@ -1,0 +1,192 @@
+
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Pizza Game</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<style>
+			body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:12px;color:#222}
+			.container{max-width:1100px;margin:12px auto}
+			h1{margin:8px 0}
+			.split{display:flex;flex-direction:column;gap:16px}
+			.panel{background:#fff;border:1px solid #e6e6e6;border-radius:8px;padding:12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+			.game-area{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+			.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+			.stat{padding:8px;border-radius:6px;background:#f9f9f9}
+			.controls{display:flex;flex-wrap:wrap;gap:8px}
+			button{padding:8px 12px;border-radius:6px;border:1px solid #ccc;background:#fafafa;cursor:pointer}
+			button.primary{background:#ff6b00;color:#fff;border-color:transparent}
+			.small{font-size:0.9rem}
+			footer{margin-top:12px;font-size:0.85rem;color:#666}
+			.value{font-weight:700}
+			pre#rawState{background:#0f1720;color:#dbeafe;padding:12px;border-radius:6px;overflow:auto;max-height:220px}
+			.dev-grid{display:grid;grid-template-columns:1fr 320px;gap:12px}
+				.quick-actions{display:flex;flex-direction:column;gap:8px}
+				.action-row{display:flex;gap:8px;align-items:center}
+				.qa-input{width:120px;padding:6px;border-radius:4px;border:1px solid #ccc}
+			input[type=number]{padding:6px;border-radius:4px;border:1px solid #ccc}
+			textarea{width:100%;height:120px;padding:8px;border-radius:6px;border:1px solid #ccc}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Pizza Game</h1>
+			<div class="split">
+				<!-- Upper: Game -->
+				<div class="panel" id="gamePanel">
+					<div class="game-area">
+							<div>
+							<h2 class="small">Live Values</h2>
+							<div id="stats" class="stats">
+								<div class="stat">Tick: <span id="tick" class="value">0</span></div>
+								<div class="stat">Pizzas Made: <span id="pizzas" class="value">0</span></div>
+								<div class="stat">Customers: <span id="customers" class="value">0</span></div>
+								<div class="stat">Money: $<span id="money" class="value">0</span></div>
+								<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
+								<div class="stat">Speed (ms): <span id="speed" class="value">1000</span></div>
+							</div>
+						</div>
+
+						<div>
+							<h2 class="small">Controls</h2>
+							<div class="controls">
+								<button id="startBtn" class="primary">Start</button>
+								<button id="stopBtn">Stop</button>
+								<button id="stepBtn">Step</button>
+								<button id="resetBtn">Reset</button>
+								<button id="slowerBtn">Speed -</button>
+								<button id="fasterBtn">Speed +</button>
+							</div>
+							<footer>Controlled by buttons; values update each tick.</footer>
+						</div>
+					</div>
+				</div>
+
+				<!-- Lower: Developer -->
+				<div class="panel" id="devPanel">
+					<h2 class="small">Developer Panel</h2>
+					<div class="dev-grid">
+						<div>
+							<h3 class="small">Raw State</h3>
+							<pre id="rawState">{}</pre>
+							<div style="margin-top:8px;display:flex;gap:8px">
+								<button id="exportBtn">Export State</button>
+								<button id="importBtn">Import State</button>
+								<button id="copyBtn">Copy JSON</button>
+							</div>
+							<textarea id="stateJson" placeholder='Paste JSON here to import'></textarea>
+
+							<hr>
+							<h3 class="small">Log</h3>
+							<div id="log" style="height:160px;overflow:auto;padding:8px;background:#111;color:#eee;border-radius:6px;font-family:monospace;font-size:0.9rem;margin-bottom:8px"></div>
+
+							<h3 class="small">Simulation Settings</h3>
+							<div style="display:grid;gap:8px;margin-top:8px">
+								<label class="small">Price per Pizza: $<input id="priceInput" type="number" value="8" min="0" step="0.5" style="width:100px"></label>
+								<label class="small">Base Customers per Tick: <input id="baseCust" type="number" value="1" min="0" step="1" style="width:100px"></label>
+							</div>
+						</div>
+
+						<div>
+							<h3 class="small">Quick Actions</h3>
+							<div class="quick-actions">
+								<div class="action-row"><label style="min-width:120px">Set Money: $</label><input id="devMoney" type="number" step="0.1" value="0" class="qa-input"><button id="applyMoney">Apply</button></div>
+								<div class="action-row"><label style="min-width:120px">Set Reputation:</label><input id="devRep" type="number" step="1" value="100" class="qa-input"><button id="applyRep">Apply</button></div>
+								<div class="action-row"><label style="min-width:120px">Fast-forward ticks:</label><input id="fastTicks" type="number" value="10" min="1" class="qa-input"><button id="fastForward">Run</button></div>
+								<div style="margin-top:6px;border-top:1px solid #eee;padding-top:8px"><button id="clearLog">Clear Log</button></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="pizza.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', ()=>{
+				const game = new PizzaGame({
+					onUpdate: state => {
+						document.getElementById('tick').textContent = state.tick;
+						document.getElementById('pizzas').textContent = state.pizzas;
+						document.getElementById('customers').textContent = state.customers;
+						document.getElementById('money').textContent = state.money.toFixed(2);
+						document.getElementById('rep').textContent = state.reputation.toFixed(0);
+						document.getElementById('speed').textContent = state.intervalMs;
+
+						const log = document.getElementById('log');
+						if(state.lastMessage){
+							const el = document.createElement('div'); el.textContent = `[${state.tick}] ${state.lastMessage}`; log.appendChild(el); log.scrollTop = log.scrollHeight;
+						}
+
+						// update raw state view
+						const raw = Object.assign({}, state);
+						raw.running = game.running;
+						document.getElementById('rawState').textContent = JSON.stringify(raw, null, 2);
+					}
+				});
+
+				// game controls
+				document.getElementById('startBtn').addEventListener('click', ()=>game.start());
+				document.getElementById('stopBtn').addEventListener('click', ()=>game.stop());
+				document.getElementById('stepBtn').addEventListener('click', ()=>game.step());
+				document.getElementById('resetBtn').addEventListener('click', ()=>{game.reset(); document.getElementById('log').textContent = ''});
+				document.getElementById('slowerBtn').addEventListener('click', ()=>game.setIntervalMs(game.intervalMs + 200));
+				document.getElementById('fasterBtn').addEventListener('click', ()=>game.setIntervalMs(Math.max(50, game.intervalMs - 200)));
+				document.getElementById('priceInput').addEventListener('input', e=>game.price = parseFloat(e.target.value) || game.price);
+				document.getElementById('baseCust').addEventListener('input', e=>game.baseCustomers = parseInt(e.target.value)||game.baseCustomers);
+
+				// developer controls
+				document.getElementById('applyMoney').addEventListener('click', ()=>{
+					const v = parseFloat(document.getElementById('devMoney').value) || 0;
+					game.money = v;
+					game.notify('Developer set money');
+				});
+				document.getElementById('applyRep').addEventListener('click', ()=>{
+					const v = parseFloat(document.getElementById('devRep').value) || 0;
+					game.reputation = v;
+					game.notify('Developer set reputation');
+				});
+				document.getElementById('fastForward').addEventListener('click', ()=>{
+					let n = parseInt(document.getElementById('fastTicks').value) || 0;
+					if(n <= 0) return;
+					// run ticks synchronously but yield occasionally so UI updates
+					const chunk = 50;
+					function runChunk(){
+						const run = Math.min(n, chunk);
+						for(let i=0;i<run;i++) game.step();
+						n -= run;
+						if(n>0) setTimeout(runChunk, 10);
+					}
+					runChunk();
+				});
+				document.getElementById('clearLog').addEventListener('click', ()=>{document.getElementById('log').textContent = ''});
+
+				document.getElementById('exportBtn').addEventListener('click', ()=>{
+					const s = JSON.stringify({
+						tick: game.tick, pizzas: game.pizzas, customers: game.customers, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs
+					}, null, 2);
+					document.getElementById('stateJson').value = s;
+				});
+				document.getElementById('importBtn').addEventListener('click', ()=>{
+					const txt = document.getElementById('stateJson').value;
+					try{
+						const obj = JSON.parse(txt);
+						['tick','pizzas','customers','money','reputation','price','baseCustomers','intervalMs'].forEach(k=>{ if(typeof obj[k] !== 'undefined') game[k] = obj[k]; });
+						if(typeof obj.intervalMs !== 'undefined') game.setIntervalMs(obj.intervalMs);
+						game.notify('State imported');
+					}catch(e){ alert('Invalid JSON: '+e.message) }
+				});
+				document.getElementById('copyBtn').addEventListener('click', async ()=>{
+					const txt = document.getElementById('stateJson').value || document.getElementById('rawState').textContent;
+					try{ await navigator.clipboard.writeText(txt); alert('Copied'); }catch(e){ alert('Copy failed: '+e.message) }
+				});
+
+				// initial UI sync
+				game.notify();
+				window._pizzaGame = game;
+			});
+		</script>
+	</body>
+</html>
+
