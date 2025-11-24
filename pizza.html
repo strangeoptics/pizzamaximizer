@@ -248,8 +248,8 @@
 
 				document.getElementById('exportBtn').addEventListener('click', ()=>{
 					const s = JSON.stringify({
-							tick: game.tick, pizzas: game.pizzas, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, carsOwned: game.carsOwned, currentCarId: game.currentCarId
-						}, null, 2);
+						tick: game.tick, pizzas: game.pizzas, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, currentCarId: game.currentCarId
+					}, null, 2);
 					document.getElementById('stateJson').value = s;
 				});
 				document.getElementById('importBtn').addEventListener('click', ()=>{
@@ -268,10 +268,7 @@
 							if(obj.worker.fetching){ game.worker.fetching = true; game.worker.remaining = parseInt(obj.worker.remaining) || 0; }
 							else { game.worker.fetching = false; game.worker.remaining = 0; }
 						}
-						// cars
-						if(typeof obj.carsOwned !== 'undefined'){
-							try{ game.carsOwned = Array.isArray(obj.carsOwned)? obj.carsOwned.slice() : []; }catch(e){}
-						}
+						// current car
 						if(typeof obj.currentCarId !== 'undefined'){
 							game.currentCarId = obj.currentCarId;
 						}

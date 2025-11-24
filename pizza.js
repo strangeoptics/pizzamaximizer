@@ -26,7 +26,6 @@ class PizzaGame {
       { id: 'kangoo', name: 'Renault Kangoo', size: 220, speed: 7, price: 300, unlockTick: 50 },
       { id: 'transit', name: 'Ford Transit', size: 500, speed: 4, price: 900, unlockTick: 150 }
     ];
-    this.carsOwned = ['fiat'];
     this.currentCarId = 'fiat';
     this.onUpdate = typeof opts.onUpdate === 'function' ? opts.onUpdate : () => {};
   }
@@ -163,20 +162,19 @@ class PizzaGame {
     return this.carCatalog.find(c=>c.id === this.currentCarId) || null;
   }
 
-  // get next available car (first in catalog not owned and unlocked by tick)
+  // get next available car (first in catalog not the current one and unlocked by tick)
   getNextAvailableCar() {
-    return this.carCatalog.find(c => !this.carsOwned.includes(c.id) && this.tick >= (c.unlockTick||0)) || null;
+    return this.carCatalog.find(c => c.id !== this.currentCarId && this.tick >= (c.unlockTick||0)) || null;
   }
 
-  // buy a car by id (returns true on success)
+  // buy a car by id (returns true on success) — only one car can be owned at a time (currentCarId)
   buyCar(carId) {
     const car = this.carCatalog.find(c=>c.id===carId);
     if(!car) { this.lastMessage = 'Car not found'; this.notify(); return false; }
-    if(this.carsOwned.includes(carId)){ this.lastMessage = 'Car already owned'; this.notify(); return false; }
+    if(this.currentCarId === carId){ this.lastMessage = 'Car already owned'; this.notify(); return false; }
     if(this.tick < (car.unlockTick||0)){ this.lastMessage = 'Car not yet available'; this.notify(); return false; }
     if(this.money < car.price){ this.lastMessage = 'Nicht genug Geld für das Auto'; this.notify(); return false; }
     this.money -= car.price;
-    this.carsOwned.push(carId);
     this.currentCarId = carId;
     this.lastMessage = `Purchased ${car.name}`;
     this.notify();
@@ -221,7 +219,6 @@ class PizzaGame {
       worker: { fetching: this.worker.fetching, remaining: this.worker.remaining },
       // car state
       currentCar: this.getCurrentCar(),
-      carsOwned: Array.from(this.carsOwned),
       nextCar: this.getNextAvailableCar(),
       money: this.money,
       reputation: this.reputation,
