@@ -37,14 +37,16 @@
 				<div class="panel" id="gamePanel">
 					<div class="game-area">
 							<div>
-							<h2 class="small">Live Values</h2>
-							<div id="stats" class="stats">
-								<div class="stat">Tick: <span id="tick" class="value">0</span></div>
-								<div class="stat">Pizzas Made: <span id="pizzas" class="value">0</span></div>
-								<div class="stat">Customers: <span id="customers" class="value">0</span></div>
-								<div class="stat">Money: $<span id="money" class="value">0</span></div>
-								<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
-								<div class="stat">Speed (ms): <span id="speed" class="value">1000</span></div>
+							<div class="panel" id="liveValuesPanel" style="margin-bottom:12px;padding:8px">
+								<h2 class="small">Live Values</h2>
+								<div id="stats" class="stats">
+									<div class="stat">Tick: <span id="tick" class="value">0</span></div>
+									<div class="stat">Pizzas Made: <span id="pizzas" class="value">0</span></div>
+									<div class="stat">Customers: <span id="customers" class="value">0</span></div>
+									<div class="stat">Money: $<span id="money" class="value">0</span></div>
+									<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
+									<div class="stat">Speed (ms): <span id="speed" class="value">1000</span></div>
+								</div>
 							</div>
 
 							<!-- Ingredients Management Area -->
@@ -62,12 +64,15 @@
 										<div style="margin-left:12px">&nbsp;</div>
 									</div>
 									<hr>
-									<div>
-										<div class="small">Car Shop</div>
-										<div id="shopInfo" style="margin-top:6px">No car available yet</div>
-										<button id="buyCarBtn" style="margin-top:6px;">Buy Car</button>
-									</div>
 								</div>
+							</div>
+
+							<!-- Car Shop: separater Panel below Ingredients Management -->
+							<div class="panel" id="carShopPanel" style="margin-top:12px;">
+								<h2 class="small">Car Shop</h2>
+								<div id="shopInfo" style="margin-top:6px">No car available yet</div>
+								<button id="buyCarBtn" style="margin-top:6px;">Buy Car</button>
+							</div>
 							</div>
 							</div>
 						</div>

@@ -178,7 +178,12 @@ class PizzaGame {
     if(this.tick < (car.unlockTick||0)){ this.lastMessage = 'Car not yet available'; this.notify(); return false; }
     if(this.money < car.price){ this.lastMessage = 'Nicht genug Geld für das Auto'; this.notify(); return false; }
     this.money -= car.price;
+    const previousCarId = this.currentCarId;
     this.currentCarId = carId;
+    // remove the previous car from the catalog so it no longer appears in the shop
+    if(previousCarId){
+      this.carCatalog = this.carCatalog.filter(c => c.id !== previousCarId);
+    }
     this.lastMessage = `Purchased ${car.name}`;
     this.notify();
     return true;
