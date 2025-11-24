@@ -68,7 +68,7 @@
 							</div>
 
 							<!-- Car Shop: separater Panel below Ingredients Management -->
-							<div class="panel" id="carShopPanel" style="margin-top:12px;">
+							<div class="panel" id="carShopPanel" style="margin-top:12px;display:none;">
 								<h2 class="small">Car Shop</h2>
 								<div id="shopInfo" style="margin-top:6px">No car available yet</div>
 								<button id="buyCarBtn" style="margin-top:6px;">Buy Car</button>
@@ -206,10 +206,13 @@
 						}
 						const shopInfo = document.getElementById('shopInfo');
 						const buyBtn = document.getElementById('buyCarBtn');
+						const carPanel = document.getElementById('carShopPanel');
 						if(state.nextCar){
+							if(carPanel) carPanel.style.display = '';
 							shopInfo.textContent = `${state.nextCar.name} — Preis: $${state.nextCar.price} — Größe: ${state.nextCar.size} — Speed: ${state.nextCar.speed} (verfügbar ab Tick ${state.nextCar.unlockTick})`;
 							if(buyBtn){ buyBtn.disabled = state.money < state.nextCar.price; buyBtn.dataset.carId = state.nextCar.id; }
 						} else {
+							if(carPanel) carPanel.style.display = 'none';
 							shopInfo.textContent = 'No car available yet';
 							if(buyBtn){ buyBtn.disabled = true; delete buyBtn.dataset.carId; }
 						}
