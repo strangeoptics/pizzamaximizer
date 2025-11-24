@@ -44,6 +44,7 @@
 									<div class="stat">Pizzas Made: <span id="pizzas" class="value">0</span></div>
 									<div class="stat">Customers: <span id="customers" class="value">0</span></div>
 									<div class="stat">Money: $<span id="money" class="value">0</span></div>
+									<div class="stat">Price per Pizza: $<span id="pricePerPizza" class="value">0</span></div>
 									<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
 									<div class="stat">Speed (ms): <span id="speed" class="value">1000</span></div>
 								</div>
@@ -67,12 +68,27 @@
 								</div>
 							</div>
 
-							<!-- Car Shop: separater Panel below Ingredients Management -->
-							<div class="panel" id="carShopPanel" style="margin-top:12px;display:none;">
-								<h2 class="small">Car Shop</h2>
-								<div id="shopInfo" style="margin-top:6px">No car available yet</div>
-								<button id="buyCarBtn" style="margin-top:6px;">Buy Car</button>
-							</div>
+								<!-- Business Panel -->
+								<div class="panel" id="businessPanel" style="margin-top:12px;">
+									<h2 class="small">Business</h2>
+									<div class="stats">
+										<div class="stat">Current: <span id="currentBusiness" class="value">Food Truck</span></div>
+										<div class="stat">Capacity: <span id="businessCapacity" class="value">1</span></div>
+										<div class="stat">Rep/ Sale: <span id="businessRep" class="value">0.05</span></div>
+									</div>
+									<div style="margin-top:8px">
+										<div class="small">Upgrade</div>
+										<div id="bizShopInfo" style="margin-top:6px">No upgrade available</div>
+										<button id="buyBusinessBtn" style="margin-top:6px;">Upgrade Business</button>
+									</div>
+								</div>
+
+								<!-- Car Shop: separater Panel below Business -->
+								<div class="panel" id="carShopPanel" style="margin-top:12px;display:none;">
+									<h2 class="small">Car Shop</h2>
+									<div id="shopInfo" style="margin-top:6px">No car available yet</div>
+									<button id="buyCarBtn" style="margin-top:6px;">Buy Car</button>
+								</div>
 							</div>
 							</div>
 						</div>
@@ -185,6 +201,19 @@
 				document.getElementById('slowerBtn').addEventListener('click', ()=>game.setIntervalMs(game.intervalMs + 200));
 				document.getElementById('fasterBtn').addEventListener('click', ()=>game.setIntervalMs(Math.max(50, game.intervalMs - 200)));
 				document.getElementById('priceInput').addEventListener('input', e=>game.price = parseFloat(e.target.value) || game.price);
+				// when developer changes base price, keep basePrice in sync so business multipliers apply predictably
+				document.getElementById('priceInput').addEventListener('change', e=>{
+					const v = parseFloat(e.target.value) || game.price;
+					game.basePrice = v;
+					// recompute current price using current business multiplier
+					const curBiz = game.getCurrentBusiness ? game.getCurrentBusiness() : null;
+					if(curBiz && typeof curBiz.priceMultiplier !== 'undefined'){
+						game.price = Math.max(0.1, Math.round(game.basePrice * curBiz.priceMultiplier * 100) / 100);
+					} else {
+						game.price = game.basePrice;
+					}
+					game.notify('Developer changed base price');
+				});
 				document.getElementById('baseCust').addEventListener('input', e=>game.baseCustomers = parseInt(e.target.value)||game.baseCustomers);
 
 				// update UI with new fields
@@ -194,6 +223,7 @@
 						document.getElementById('ingredients').textContent = state.ingredients || 0;
 						document.getElementById('worker').textContent = (state.worker && state.worker.fetching) ? `fetching (${state.worker.remaining})` : 'idle';
 						document.getElementById('ingPrice').textContent = (typeof state.ingredientPrice !== 'undefined') ? state.ingredientPrice.toFixed(0) : '0';
+						document.getElementById('pricePerPizza').textContent = (typeof state.price !== 'undefined') ? parseFloat(state.price).toFixed(2) : parseFloat(game.price).toFixed(2);
 						const sendBtn = document.getElementById('sendWorkerBtn');
 						if(sendBtn) sendBtn.disabled = !!(state.worker && state.worker.fetching);
 
@@ -215,6 +245,27 @@
 							if(carPanel) carPanel.style.display = 'none';
 							shopInfo.textContent = 'No car available yet';
 							if(buyBtn){ buyBtn.disabled = true; delete buyBtn.dataset.carId; }
+						}
+
+						// business panel update
+						const bizPanel = document.getElementById('businessPanel');
+						const curBiz = state.currentBusiness;
+						if(curBiz){
+							document.getElementById('currentBusiness').textContent = curBiz.name;
+							document.getElementById('businessCapacity').textContent = curBiz.capacity;
+							document.getElementById('businessRep').textContent = curBiz.reputationBoost;
+						}
+						const nextBiz = state.nextBusiness;
+						const bizShopInfo = document.getElementById('bizShopInfo');
+						const buyBizBtn = document.getElementById('buyBusinessBtn');
+						if(nextBiz){
+							if(bizPanel) bizPanel.style.display = '';
+							bizShopInfo.textContent = `${nextBiz.name} — Preis: $${nextBiz.price} — Kapazität: ${nextBiz.capacity} — Rep/Sale: ${nextBiz.reputationBoost} (verfügbar ab Tick ${nextBiz.unlockTick})`;
+							if(buyBizBtn){ buyBizBtn.disabled = state.money < nextBiz.price; buyBizBtn.dataset.businessId = nextBiz.id; }
+						}else{
+							if(bizPanel) bizPanel.style.display = '';
+							bizShopInfo.textContent = 'No upgrade available';
+							if(buyBizBtn){ buyBizBtn.disabled = true; delete buyBizBtn.dataset.businessId; }
 						}
 				};
 
@@ -253,10 +304,21 @@
 						game.buyCar(carId);
 					}
 				});
+				// buy business handler
+				document.getElementById('buyBusinessBtn').addEventListener('click', ()=>{
+					const btn = document.getElementById('buyBusinessBtn');
+					const bizId = btn && btn.dataset && btn.dataset.businessId;
+					if(!bizId){ alert('No upgrade available'); return; }
+					if(typeof game.buyBusiness === 'function'){
+						const biz = game.businessCatalog.find(b=>b.id===bizId);
+						if(game.money < (biz?.price||Infinity)){ alert('Nicht genug Geld für das Upgrade'); return; }
+						game.buyBusiness(bizId);
+					}
+				});
 
 				document.getElementById('exportBtn').addEventListener('click', ()=>{
 					const s = JSON.stringify({
-						tick: game.tick, pizzas: game.pizzas, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, currentCarId: game.currentCarId
+						tick: game.tick, pizzas: game.pizzas, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, currentCarId: game.currentCarId, currentBusinessId: game.currentBusinessId
 					}, null, 2);
 					document.getElementById('stateJson').value = s;
 				});
@@ -279,6 +341,23 @@
 						// current car
 						if(typeof obj.currentCarId !== 'undefined'){
 							game.currentCarId = obj.currentCarId;
+						}
+						// current business
+						if(typeof obj.currentBusinessId !== 'undefined'){
+							game.currentBusinessId = obj.currentBusinessId;
+							// recompute price according to business multiplier if possible
+							try{
+								const biz = game.getCurrentBusiness ? game.getCurrentBusiness() : null;
+								if(biz && typeof biz.priceMultiplier !== 'undefined'){
+									game.price = Math.max(0.1, Math.round(game.basePrice * biz.priceMultiplier * 100) / 100);
+								} else {
+									game.price = game.basePrice || game.price;
+								}
+							}catch(e){}
+						}
+						// current business
+						if(typeof obj.currentBusinessId !== 'undefined'){
+							game.currentBusinessId = obj.currentBusinessId;
 						}
 						if(typeof obj.intervalMs !== 'undefined') game.setIntervalMs(obj.intervalMs);
 						game.notify('State imported');

@@ -12,6 +12,7 @@ class PizzaGame {
     this.reputation = 100;
     this.intervalMs = 2000;
     this.price = 8;
+    this.basePrice = this.price;
     this.baseCustomers = 1;
     this._timer = null;
     this.running = false;
@@ -27,6 +28,15 @@ class PizzaGame {
       { id: 'transit', name: 'Ford Transit', size: 500, speed: 4, price: 900, unlockTick: 150 }
     ];
     this.currentCarId = 'fiat';
+    // Business system
+    // catalog: id, name, capacity (customers served per worker trip/tick), reputationBoost (per sale), price, unlockTick
+    this.businessCatalog = [
+      { id: 'foodtruck', name: 'Food Truck', capacity: 1, reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, unlockTick: 0 },
+      { id: 'einraum', name: 'Einraumpizzeria', capacity: 3, reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, unlockTick: 50 },
+      { id: 'pizzeria', name: 'Pizzeria', capacity: 6, reputationBoost: 0.5, price: 2000, priceMultiplier: 1.5, unlockTick: 200 },
+      { id: 'superstore', name: 'Pizza Super Store', capacity: 15, reputationBoost: 1.0, price: 10000, priceMultiplier: 2.0, unlockTick: 500 }
+    ];
+    this.currentBusinessId = 'foodtruck';
     this.onUpdate = typeof opts.onUpdate === 'function' ? opts.onUpdate : () => {};
   }
 
@@ -189,14 +199,44 @@ class PizzaGame {
     return true;
   }
 
+  // Business helpers
+  getCurrentBusiness() {
+    return this.businessCatalog.find(b => b.id === this.currentBusinessId) || null;
+  }
+
+  getNextAvailableBusiness() {
+    return this.businessCatalog.find(b => b.id !== this.currentBusinessId && this.tick >= (b.unlockTick||0)) || null;
+  }
+
+  buyBusiness(businessId) {
+    const biz = this.businessCatalog.find(b=>b.id===businessId);
+    if(!biz){ this.lastMessage = 'Business not found'; this.notify(); return false; }
+    if(this.currentBusinessId === businessId){ this.lastMessage = 'Business already active'; this.notify(); return false; }
+    if(this.tick < (biz.unlockTick||0)){ this.lastMessage = 'Business not yet available'; this.notify(); return false; }
+    if(this.money < biz.price){ this.lastMessage = 'Nicht genug Geld für das Upgrade'; this.notify(); return false; }
+    this.money -= biz.price;
+    const previous = this.currentBusinessId;
+    this.currentBusinessId = businessId;
+    // remove previous business from catalog so it won't be offered again
+    if(previous){ this.businessCatalog = this.businessCatalog.filter(b=>b.id !== previous); }
+    // update price per pizza according to business multiplier (based on basePrice)
+    this.price = Math.max(0.1, Math.round(this.basePrice * biz.priceMultiplier * 100) / 100);
+    this.lastMessage = `Upgraded to ${biz.name}`;
+    this.notify();
+    return true;
+  }
+
   _serveCustomers() {
     let sold = 0;
-    while (this.pizzas > 0 && this.customers.length > 0) {
+    const biz = this.getCurrentBusiness();
+    const serveLimit = biz ? Math.max(1, biz.capacity) : 1;
+    while (sold < serveLimit && this.pizzas > 0 && this.customers.length > 0) {
       // serve first waiting customer
       this.pizzas -= 1;
       const c = this.customers.shift();
       this.money += this.price;
-      this.reputation = Math.min(200, this.reputation + 0.1);
+      const repGain = biz ? biz.reputationBoost : 0.1;
+      this.reputation = Math.min(200, this.reputation + repGain);
       sold += 1;
     }
     if (sold > 0) {
@@ -228,6 +268,11 @@ class PizzaGame {
       // car state
       currentCar: this.getCurrentCar(),
       nextCar: this.getNextAvailableCar(),
+      price: this.price,
+      basePrice: this.basePrice,
+      // business state
+      currentBusiness: this.getCurrentBusiness(),
+      nextBusiness: this.getNextAvailableBusiness(),
       money: this.money,
       reputation: this.reputation,
       intervalMs: this.intervalMs,
