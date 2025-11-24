@@ -58,7 +58,10 @@ class PizzaGame {
     this.tick += 1;
 
     // spawn new customers
-    const newCust = this.baseCustomers + Math.floor(Math.random() * 3);
+    // more reputation => more customers. For every 50 reputation points above 100, add one extra customer.
+    const baseSpawn = this.baseCustomers + Math.floor(Math.random() * 3);
+    const repExtra = Math.max(0, Math.floor((this.reputation - 100) / 50));
+    const newCust = baseSpawn + repExtra;
     for (let i = 0; i < newCust; i++) {
       this.customers.push({ id: this._nextCustomerId++, waited: 0 });
     }
