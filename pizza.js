@@ -19,6 +19,15 @@ class PizzaGame {
     this._nextCustomerId = 1;
     // worker state: fetching boolean and remaining ticks until return
     this.worker = { fetching: false, remaining: 0 };
+    // Car system
+    // catalog: id, name, size (ingredient units), speed (ticks to return), price, unlockTick
+    this.carCatalog = [
+      { id: 'fiat', name: 'Fiat Uno', size: 100, speed: 10, price: 0, unlockTick: 0 },
+      { id: 'kangoo', name: 'Renault Kangoo', size: 220, speed: 7, price: 300, unlockTick: 50 },
+      { id: 'transit', name: 'Ford Transit', size: 500, speed: 4, price: 900, unlockTick: 150 }
+    ];
+    this.carsOwned = ['fiat'];
+    this.currentCarId = 'fiat';
     this.onUpdate = typeof opts.onUpdate === 'function' ? opts.onUpdate : () => {};
   }
 
@@ -87,9 +96,10 @@ class PizzaGame {
       if (this.worker.remaining <= 0) {
         this.worker.fetching = false;
         this.worker.remaining = 0;
-        const arrived = 150; // units fetched
+        const car = this.getCurrentCar();
+        const arrived = car ? car.size : 0; // units fetched depends on car size
         this.ingredients += arrived;
-        this.lastMessage = `Worker returned with ${arrived} ingredient units`;
+        this.lastMessage = `Worker returned with ${arrived} ingredient units (car: ${car?car.name:'none'})`;
       }
     }
 
@@ -97,6 +107,9 @@ class PizzaGame {
     if (this.tick % 5 === 0) {
       this.ingredientPrice = 100 + Math.floor(Math.random() * 101); // 100..200
     }
+
+    // unlock cars if tick reached (catalog uses unlockTick)
+    // nothing to do here beyond availability check in notify
 
     this.notify();
   }
@@ -130,11 +143,42 @@ class PizzaGame {
       this.notify();
       return false;
     }
+    const car = this.getCurrentCar();
+    if (!car) {
+      this.lastMessage = 'Kein Auto verfügbar, Arbeiter kann nicht losgeschickt werden';
+      this.notify();
+      return false;
+    }
     this.worker.fetching = true;
-    this.worker.remaining = 10; // ticks until return
+    this.worker.remaining = car.speed; // ticks until return depends on car speed
     // charge money immediately
     this.money -= this.ingredientPrice;
     this.lastMessage = `Worker dispatched to fetch ingredients (cost $${this.ingredientPrice.toFixed(2)})`;
+    this.notify();
+    return true;
+  }
+
+  // return car object for currentCarId
+  getCurrentCar() {
+    return this.carCatalog.find(c=>c.id === this.currentCarId) || null;
+  }
+
+  // get next available car (first in catalog not owned and unlocked by tick)
+  getNextAvailableCar() {
+    return this.carCatalog.find(c => !this.carsOwned.includes(c.id) && this.tick >= (c.unlockTick||0)) || null;
+  }
+
+  // buy a car by id (returns true on success)
+  buyCar(carId) {
+    const car = this.carCatalog.find(c=>c.id===carId);
+    if(!car) { this.lastMessage = 'Car not found'; this.notify(); return false; }
+    if(this.carsOwned.includes(carId)){ this.lastMessage = 'Car already owned'; this.notify(); return false; }
+    if(this.tick < (car.unlockTick||0)){ this.lastMessage = 'Car not yet available'; this.notify(); return false; }
+    if(this.money < car.price){ this.lastMessage = 'Nicht genug Geld für das Auto'; this.notify(); return false; }
+    this.money -= car.price;
+    this.carsOwned.push(carId);
+    this.currentCarId = carId;
+    this.lastMessage = `Purchased ${car.name}`;
     this.notify();
     return true;
   }
@@ -175,6 +219,10 @@ class PizzaGame {
       ingredients: this.ingredients,
       ingredientPrice: this.ingredientPrice,
       worker: { fetching: this.worker.fetching, remaining: this.worker.remaining },
+      // car state
+      currentCar: this.getCurrentCar(),
+      carsOwned: Array.from(this.carsOwned),
+      nextCar: this.getNextAvailableCar(),
       money: this.money,
       reputation: this.reputation,
       intervalMs: this.intervalMs,

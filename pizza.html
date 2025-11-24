@@ -55,9 +55,20 @@
 									<div class="stat">Worker: <span id="worker" class="value">idle</span></div>
 									<div class="stat">Ingredient Price: $<span id="ingPrice" class="value">0</span></div>
 								</div>
-								<div class="controls" style="margin-top:8px;">
-									<button id="sendWorkerBtn">Send Worker</button>
-								</div>
+									</div>
+									<div style="margin-top:8px;display:grid;gap:8px">
+										<div class="stat">Current Car: <span id="currentCar" class="value">Fiat Uno</span></div>
+										<div style="display:flex;gap:8px;align-items:center">
+											<button id="sendWorkerBtn">Send Worker</button>
+											<div style="margin-left:12px">&nbsp;</div>
+										</div>
+										<hr>
+										<div>
+											<div class="small">Car Shop</div>
+											<div id="shopInfo" style="margin-top:6px">No car available yet</div>
+											<button id="buyCarBtn" style="margin-top:6px;">Buy Car</button>
+										</div>
+									</div>
 							</div>
 						</div>
 
@@ -165,8 +176,25 @@
 						document.getElementById('ingredients').textContent = state.ingredients || 0;
 						document.getElementById('worker').textContent = (state.worker && state.worker.fetching) ? `fetching (${state.worker.remaining})` : 'idle';
 						document.getElementById('ingPrice').textContent = (typeof state.ingredientPrice !== 'undefined') ? state.ingredientPrice.toFixed(0) : '0';
-					const sendBtn = document.getElementById('sendWorkerBtn');
-					if(sendBtn) sendBtn.disabled = !!(state.worker && state.worker.fetching);
+						const sendBtn = document.getElementById('sendWorkerBtn');
+						if(sendBtn) sendBtn.disabled = !!(state.worker && state.worker.fetching);
+
+						// car UI
+						const cur = state.currentCar;
+						if(cur){
+							document.getElementById('currentCar').textContent = `${cur.name} (size ${cur.size}, speed ${cur.speed})`;
+						} else {
+							document.getElementById('currentCar').textContent = 'none';
+						}
+						const shopInfo = document.getElementById('shopInfo');
+						const buyBtn = document.getElementById('buyCarBtn');
+						if(state.nextCar){
+							shopInfo.textContent = `${state.nextCar.name} — Preis: $${state.nextCar.price} — Größe: ${state.nextCar.size} — Speed: ${state.nextCar.speed} (verfügbar ab Tick ${state.nextCar.unlockTick})`;
+							if(buyBtn){ buyBtn.disabled = state.money < state.nextCar.price; buyBtn.dataset.carId = state.nextCar.id; }
+						} else {
+							shopInfo.textContent = 'No car available yet';
+							if(buyBtn){ buyBtn.disabled = true; delete buyBtn.dataset.carId; }
+						}
 				};
 
 				// developer controls
@@ -194,11 +222,21 @@
 					runChunk();
 				});
 				document.getElementById('clearLog').addEventListener('click', ()=>{document.getElementById('log').textContent = ''});
+				// buy car handler
+				document.getElementById('buyCarBtn').addEventListener('click', ()=>{
+					const btn = document.getElementById('buyCarBtn');
+					const carId = btn && btn.dataset && btn.dataset.carId;
+					if(!carId) { alert('No car available'); return; }
+					if(typeof game.buyCar === 'function'){
+						if(game.money < (game.carCatalog.find(c=>c.id===carId)?.price||Infinity)) { alert('Nicht genug Geld für das Auto'); return; }
+						game.buyCar(carId);
+					}
+				});
 
 				document.getElementById('exportBtn').addEventListener('click', ()=>{
 					const s = JSON.stringify({
-						tick: game.tick, pizzas: game.pizzas, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs
-					}, null, 2);
+							tick: game.tick, pizzas: game.pizzas, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, carsOwned: game.carsOwned, currentCarId: game.currentCarId
+						}, null, 2);
 					document.getElementById('stateJson').value = s;
 				});
 				document.getElementById('importBtn').addEventListener('click', ()=>{
@@ -216,6 +254,13 @@
 						if(typeof obj.worker !== 'undefined'){
 							if(obj.worker.fetching){ game.worker.fetching = true; game.worker.remaining = parseInt(obj.worker.remaining) || 0; }
 							else { game.worker.fetching = false; game.worker.remaining = 0; }
+						}
+						// cars
+						if(typeof obj.carsOwned !== 'undefined'){
+							try{ game.carsOwned = Array.isArray(obj.carsOwned)? obj.carsOwned.slice() : []; }catch(e){}
+						}
+						if(typeof obj.currentCarId !== 'undefined'){
+							game.currentCarId = obj.currentCarId;
 						}
 						if(typeof obj.intervalMs !== 'undefined') game.setIntervalMs(obj.intervalMs);
 						game.notify('State imported');
