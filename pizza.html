@@ -79,6 +79,7 @@
 								<button id="stopBtn">Stop</button>
 								<button id="stepBtn">Step</button>
 								<button id="resetBtn">Reset</button>
+								<button id="toggleDevBtn">Hide Dev</button>
 								<button id="makePizzaBtn" class="primary">Make Pizza</button>
 								<button id="slowerBtn">Speed -</button>
 								<button id="fasterBtn">Speed +</button>
@@ -162,6 +163,18 @@
 						if(typeof game.sendWorker === 'function'){
 							if(game.money < game.ingredientPrice){ alert(`Nicht genug Geld. Preis: $${game.ingredientPrice.toFixed(2)}`); return; }
 							game.sendWorker();
+						}
+					});
+					document.getElementById('toggleDevBtn').addEventListener('click', ()=>{
+						const dev = document.getElementById('devPanel');
+						const btn = document.getElementById('toggleDevBtn');
+						if(!dev) return;
+						if(dev.style.display === 'none'){
+							dev.style.display = '';
+							btn.textContent = 'Hide Dev';
+						}else{
+							dev.style.display = 'none';
+							btn.textContent = 'Show Dev';
 						}
 					});
 				document.getElementById('slowerBtn').addEventListener('click', ()=>game.setIntervalMs(game.intervalMs + 200));
