@@ -42,12 +42,22 @@
 								<div class="stat">Tick: <span id="tick" class="value">0</span></div>
 								<div class="stat">Pizzas Made: <span id="pizzas" class="value">0</span></div>
 								<div class="stat">Customers: <span id="customers" class="value">0</span></div>
-								<div class="stat">Ingredients: <span id="ingredients" class="value">0</span></div>
-								<div class="stat">Worker: <span id="worker" class="value">idle</span></div>
-								<div class="stat">Ingredient Price: $<span id="ingPrice" class="value">0</span></div>
 								<div class="stat">Money: $<span id="money" class="value">0</span></div>
 								<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
 								<div class="stat">Speed (ms): <span id="speed" class="value">1000</span></div>
+							</div>
+
+							<!-- Ingredients Management Area -->
+							<div class="panel" id="ingredientsPanel" style="margin-top:12px;">
+								<h2 class="small">Ingredients Management</h2>
+								<div class="stats">
+									<div class="stat">Ingredients: <span id="ingredients" class="value">0</span></div>
+									<div class="stat">Worker: <span id="worker" class="value">idle</span></div>
+									<div class="stat">Ingredient Price: $<span id="ingPrice" class="value">0</span></div>
+								</div>
+								<div class="controls" style="margin-top:8px;">
+									<button id="sendWorkerBtn">Send Worker</button>
+								</div>
 							</div>
 						</div>
 
@@ -59,7 +69,6 @@
 								<button id="stepBtn">Step</button>
 								<button id="resetBtn">Reset</button>
 								<button id="makePizzaBtn" class="primary">Make Pizza</button>
-								<button id="sendWorkerBtn">Send Worker</button>
 								<button id="slowerBtn">Speed -</button>
 								<button id="fasterBtn">Speed +</button>
 							</div>
