@@ -287,11 +287,15 @@
 						const buyBizBtn = document.getElementById('buyBusinessBtn');
 						if(nextBiz){
 							if(bizPanel) bizPanel.style.display = '';
-							bizShopInfo.textContent = `${nextBiz.name} — Preis: $${nextBiz.price} — Kapazität: ${nextBiz.capacity} — Rep/Sale: ${nextBiz.reputationBoost} `;
+							bizShopInfo.classList.add('tooltip-target');
+							bizShopInfo.textContent = `${nextBiz.name} — Preis: $${nextBiz.price}`;
+							bizShopInfo.setAttribute('data-tooltip', `Kapazität: ${nextBiz.capacity} | Rep/Sale: ${nextBiz.reputationBoost} | Mult: ${nextBiz.priceMultiplier}`);
 							if(buyBizBtn){ buyBizBtn.disabled = state.money < nextBiz.price; buyBizBtn.dataset.businessId = nextBiz.id; }
 						}else{
 							if(bizPanel) bizPanel.style.display = '';
 							bizShopInfo.textContent = 'No upgrade available';
+							bizShopInfo.classList.remove('tooltip-target');
+							bizShopInfo.removeAttribute('data-tooltip');
 							if(buyBizBtn){ buyBizBtn.disabled = true; delete buyBizBtn.dataset.businessId; }
 						}
 				};
