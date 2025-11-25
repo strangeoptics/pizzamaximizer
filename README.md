@@ -1,7 +1,7 @@
 # PizzaMaximizer
 
 ![PizzaMaximizer Logo](pizzamaximizer_logo.jpg)
-
+[start game](https://htmlpreview.github.io/?https://github.com/strangeoptics/pizzamaximizer/blob/main/pizza.html)
 Kurz: Ein kleines Browser-Spiel/Prototyp, in dem du Pizzen herstellst, Kunden bedienst, Zutaten per Arbeiter besorgst, Autos kaufst und dein Geschäft ausbaust.
 
 **Zweck**
