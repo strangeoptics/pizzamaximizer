@@ -29,13 +29,16 @@ class PizzaGame {
       { id: 'transit', name: 'Ford Transit', size: 500, speed: 4, price: 900, unlockTick: 150 }
     ];
     this.currentCarId = 'fiat';
+    // Employee system
+    this.employees = 0;
+    this.employeePrice = 200;
     // Business system
-    // catalog: id, name, reputationBoost (per sale), price, priceMultiplier, capacity (oven slots), unlockTick
+    // catalog: id, name, reputationBoost (per sale), price, priceMultiplier, capacity (oven slots), maxEmployees, unlockTick
     this.businessCatalog = [
-      { id: 'foodtruck', name: 'Food Truck', reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, capacity: 6, unlockTick: 0 },
-      { id: 'einraum', name: 'Einraumpizzeria', reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, capacity: 12, unlockTick: 50 },
-      { id: 'pizzeria', name: 'Pizzeria', reputationBoost: 0.5, price: 2000, priceMultiplier: 1.5, capacity: 24, unlockTick: 200 },
-      { id: 'superstore', name: 'Pizza Super Store', reputationBoost: 1.0, price: 10000, priceMultiplier: 2.0, capacity: 48, unlockTick: 500 }
+      { id: 'foodtruck', name: 'Food Truck', reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, capacity: 6, maxEmployees: 1, unlockTick: 0 },
+      { id: 'einraum', name: 'Einraumpizzeria', reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, capacity: 12, maxEmployees: 3, unlockTick: 50 },
+      { id: 'pizzeria', name: 'Pizzeria', reputationBoost: 0.5, price: 2000, priceMultiplier: 1.5, capacity: 24, maxEmployees: 10, unlockTick: 200 },
+      { id: 'superstore', name: 'Pizza Super Store', reputationBoost: 1.0, price: 10000, priceMultiplier: 2.0, capacity: 48, maxEmployees: 50, unlockTick: 500 }
     ];
     this.currentBusinessId = 'foodtruck';
     this.onUpdate = typeof opts.onUpdate === 'function' ? opts.onUpdate : () => {};
@@ -75,6 +78,25 @@ class PizzaGame {
     const newCust = baseSpawn + repExtra;
     for (let i = 0; i < newCust; i++) {
       this.customers.push({ id: this._nextCustomerId++, waited: 0 });
+    }
+
+    // Employees produce pizzas
+    if (this.employees > 0) {
+      const biz = this.getCurrentBusiness();
+      const capacity = biz ? biz.capacity : 6;
+      // Each employee can produce 1 pizza per tick
+      const maxProduction = this.employees;
+      const maxByIngredients = Math.floor(this.ingredients / 4);
+      const maxBySpace = Math.max(0, capacity - this.pizzas);
+      
+      const actualProduction = Math.min(maxProduction, maxByIngredients, maxBySpace);
+      
+      if (actualProduction > 0) {
+        this.ingredients -= actualProduction * 4;
+        this.pizzas += actualProduction;
+        // We don't set lastMessage here to avoid spamming or overwriting important messages,
+        // but we could log it if we had a detailed log.
+      }
     }
 
     // Try to serve waiting customers with available pizzas
@@ -236,6 +258,26 @@ class PizzaGame {
     return true;
   }
 
+  hireEmployee() {
+    const biz = this.getCurrentBusiness();
+    const max = biz ? (biz.maxEmployees || 0) : 0;
+    if (this.employees >= max) {
+      this.lastMessage = 'Max employees reached for this business';
+      this.notify();
+      return false;
+    }
+    if (this.money < this.employeePrice) {
+      this.lastMessage = 'Not enough money to hire employee';
+      this.notify();
+      return false;
+    }
+    this.money -= this.employeePrice;
+    this.employees += 1;
+    this.lastMessage = 'Hired an employee';
+    this.notify();
+    return true;
+  }
+
   _serveCustomers() {
     let sold = 0;
     const biz = this.getCurrentBusiness();
@@ -261,6 +303,7 @@ class PizzaGame {
     this.tick = 0;
     this.pizzas = 0;
     this.totalSold = 0;
+    this.employees = 0;
     this.customers = [];
     this.money = 0;
     this.reputation = 100;
@@ -288,6 +331,8 @@ class PizzaGame {
       // business state
       currentBusiness: this.getCurrentBusiness(),
       nextBusiness: this.getNextAvailableBusiness(),
+      employees: this.employees,
+      employeePrice: this.employeePrice,
       money: this.money,
       reputation: this.reputation,
       intervalMs: this.intervalMs,

@@ -88,6 +88,12 @@
 										<div class="stat">Current: <span id="currentBusiness" class="value tooltip-target" data-tooltip="Rep/Sale: - | Price: - | Mult: -">Food Truck</span></div>
 										<div class="stat">Rep/ Sale: <span id="businessRep" class="value">0.05</span></div>
 									</div>
+									<div class="stats" style="margin-top:8px">
+										<div class="stat">Employees: <span id="employeeCount" class="value">0 / 1</span></div>
+										<div style="display:flex;align-items:center">
+											<button id="hireEmployeeBtn" style="padding:4px 8px;font-size:0.85rem">Hire ($200)</button>
+										</div>
+									</div>
 									<div style="margin-top:8px">
 										<div class="stat">Upgrade: <span id="bizShopInfo" class="value">No upgrade available</span></div>
 										<button id="buyBusinessBtn" style="margin-top:6px;">Upgrade Business</button>
@@ -278,6 +284,15 @@
 							const mult = typeof curBiz.priceMultiplier !== 'undefined' ? curBiz.priceMultiplier : 'n/a';
 							bizEl.setAttribute('data-tooltip', `Rep/Sale: ${curBiz.reputationBoost} | Price: $${price} | Mult: ${mult}`);
 							document.getElementById('businessRep').textContent = curBiz.reputationBoost;
+							
+							// Employee UI
+							const maxEmp = curBiz.maxEmployees || 0;
+							document.getElementById('employeeCount').textContent = `${state.employees} / ${maxEmp}`;
+							const hireBtn = document.getElementById('hireEmployeeBtn');
+							if(hireBtn){
+								hireBtn.textContent = `Hire ($${state.employeePrice})`;
+								hireBtn.disabled = state.employees >= maxEmp || state.money < state.employeePrice;
+							}
 						} else {
 							bizEl.textContent = 'none';
 							bizEl.setAttribute('data-tooltip', 'No business');
@@ -346,10 +361,15 @@
 						game.buyBusiness(bizId);
 					}
 				});
+				document.getElementById('hireEmployeeBtn').addEventListener('click', ()=>{
+					if(typeof game.hireEmployee === 'function'){
+						game.hireEmployee();
+					}
+				});
 
 				document.getElementById('exportBtn').addEventListener('click', ()=>{
 					const s = JSON.stringify({
-						tick: game.tick, pizzas: game.pizzas, totalSold: game.totalSold, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, currentCarId: game.currentCarId, currentBusinessId: game.currentBusinessId
+						tick: game.tick, pizzas: game.pizzas, totalSold: game.totalSold, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, currentCarId: game.currentCarId, currentBusinessId: game.currentBusinessId, employees: game.employees
 					}, null, 2);
 					document.getElementById('stateJson').value = s;
 				});
@@ -357,7 +377,7 @@
 					const txt = document.getElementById('stateJson').value;
 					try{
 						const obj = JSON.parse(txt);
-						['tick','pizzas','totalSold','money','reputation','price','baseCustomers','intervalMs','ingredients','ingredientPrice'].forEach(k=>{ if(typeof obj[k] !== 'undefined') game[k] = obj[k]; });
+						['tick','pizzas','totalSold','money','reputation','price','baseCustomers','intervalMs','ingredients','ingredientPrice','employees'].forEach(k=>{ if(typeof obj[k] !== 'undefined') game[k] = obj[k]; });
 						// customers imported as a number -> create that many waiting customers
 						if(typeof obj.customers !== 'undefined'){
 							const n = parseInt(obj.customers) || 0;
