@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Pizza Game</title>
+		<title>Pizza Maximizer</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<style>
 			body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:12px;color:#222}
@@ -11,6 +11,8 @@
 			h1{margin:8px 0}
 			.split{display:flex;flex-direction:column;gap:16px}
 			.panel{background:#fff;border:1px solid #e6e6e6;border-radius:8px;padding:12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+			fieldset{border:1px solid #d0d0d0;border-radius:6px;padding:12px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.02);margin:0}
+			legend{padding:0 6px;font-weight:600;font-size:0.95rem;color:#333}
 			.game-area{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
 			.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 			.stat{padding:8px;border-radius:6px;background:#f9f9f9}
@@ -37,22 +39,21 @@
 				<div class="panel" id="gamePanel">
 					<div class="game-area">
 							<div>
-							<div class="panel" id="liveValuesPanel" style="margin-bottom:12px;padding:8px">
-								<h2 class="small">Live Values</h2>
-								<div id="stats" class="stats">
-									<div class="stat">Tick: <span id="tick" class="value">0</span></div>
-									<div class="stat">Pizzas Made: <span id="pizzas" class="value">0</span></div>
-									<div class="stat">Customers: <span id="customers" class="value">0</span></div>
-									<div class="stat">Money: $<span id="money" class="value">0</span></div>
-									<div class="stat">Price per Pizza: $<span id="pricePerPizza" class="value">0</span></div>
-									<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
-									<div class="stat">Speed (ms): <span id="speed" class="value">1000</span></div>
-								</div>
+							<fieldset id="liveValuesPanel" style="margin-bottom:12px;">
+								<legend>Live Values</legend>
+							<div id="stats" class="stats">
+								<div class="stat">Tick: <span id="tick" class="value">0</span></div>
+								<div class="stat">Pizzas in Oven: <span id="pizzas" class="value">0</span></div>
+								<div class="stat">Customers: <span id="customers" class="value">0</span></div>
+								<div class="stat">Money: $<span id="money" class="value">0</span></div>
+								<div class="stat">Price per Pizza: $<span id="pricePerPizza" class="value">0</span></div>
+								<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
 							</div>
+							</fieldset>
 
 							<!-- Ingredients Management Area -->
-							<div class="panel" id="ingredientsPanel" style="margin-top:12px;">
-								<h2 class="small">Ingredients Management</h2>
+							<fieldset id="ingredientsPanel" style="margin-top:12px;">
+								<legend>Ingredients Management</legend>
 								<div class="stats">
 									<div class="stat">Ingredients: <span id="ingredients" class="value">0</span></div>
 									<div class="stat">Worker: <span id="worker" class="value">idle</span></div>
@@ -66,11 +67,11 @@
 									</div>
 									<hr>
 								</div>
-							</div>
+							</fieldset>
 
 								<!-- Business Panel -->
-								<div class="panel" id="businessPanel" style="margin-top:12px;">
-									<h2 class="small">Business</h2>
+								<fieldset id="businessPanel" style="margin-top:12px;">
+									<legend>Business</legend>
 									<div class="stats">
 										<div class="stat">Current: <span id="currentBusiness" class="value">Food Truck</span></div>
 										<div class="stat">Rep/ Sale: <span id="businessRep" class="value">0.05</span></div>
@@ -80,14 +81,14 @@
 										<div id="bizShopInfo" style="margin-top:6px">No upgrade available</div>
 										<button id="buyBusinessBtn" style="margin-top:6px;">Upgrade Business</button>
 									</div>
-								</div>
+								</fieldset>
 
 								<!-- Car Shop: separater Panel below Business -->
-								<div class="panel" id="carShopPanel" style="margin-top:12px;display:none;">
-									<h2 class="small">Car Shop</h2>
+								<fieldset id="carShopPanel" style="margin-top:12px;display:none;">
+									<legend>Car Shop</legend>
 									<div id="shopInfo" style="margin-top:6px">No car available yet</div>
 									<button id="buyCarBtn" style="margin-top:6px;">Buy Car</button>
-								</div>
+								</fieldset>
 							</div>
 							</div>
 						</div>
@@ -101,10 +102,10 @@
 								<button id="resetBtn">Reset</button>
 								<button id="toggleDevBtn">Hide Dev</button>
 								<button id="makePizzaBtn" class="primary">Make Pizza</button>
-								<button id="slowerBtn">Speed -</button>
-								<button id="fasterBtn">Speed +</button>
-							</div>
-							<footer>Controlled by buttons; values update each tick.</footer>
+							<button id="slowerBtn">Speed -</button>
+							<button id="fasterBtn">Speed +</button>
+						</div>
+						<footer>Controlled by buttons; values update each tick. | Speed: <span id="speed" class="value">1000</span> ms</footer>
 						</div>
 					</div>
 				</div>
