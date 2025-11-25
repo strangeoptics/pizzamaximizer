@@ -29,7 +29,7 @@ class PizzaGame {
     ];
     this.currentCarId = 'fiat';
     // Business system
-    // catalog: id, name, capacity (customers served per worker trip/tick), reputationBoost (per sale), price, unlockTick
+    // catalog: id, name, reputationBoost (per sale), price, unlockTick
     this.businessCatalog = [
       { id: 'foodtruck', name: 'Food Truck', reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, unlockTick: 0 },
       { id: 'einraum', name: 'Einraumpizzeria', reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, unlockTick: 50 },

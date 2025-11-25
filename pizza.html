@@ -89,8 +89,7 @@
 										<div class="stat">Rep/ Sale: <span id="businessRep" class="value">0.05</span></div>
 									</div>
 									<div style="margin-top:8px">
-										<div class="small">Upgrade</div>
-										<div id="bizShopInfo" style="margin-top:6px">No upgrade available</div>
+										<div class="stat">Upgrade: <span id="bizShopInfo" class="value">No upgrade available</span></div>
 										<button id="buyBusinessBtn" style="margin-top:6px;">Upgrade Business</button>
 									</div>
 								</fieldset>
@@ -255,7 +254,7 @@
 						// Use explicit availableCarsCount (from notify) to decide visibility
 						if(state.availableCarsCount && state.availableCarsCount > 0 && state.nextCar){
 							if(carPanel) carPanel.style.display = '';
-							shopInfo.textContent = `${state.nextCar.name} — Preis: $${state.nextCar.price} — Größe: ${state.nextCar.size} — Speed: ${state.nextCar.speed} (verfügbar ab Tick ${state.nextCar.unlockTick})`;
+							shopInfo.textContent = `${state.nextCar.name} — Preis: $${state.nextCar.price} — Größe: ${state.nextCar.size} — Speed: ${state.nextCar.speed}`;
 							if(buyBtn){ buyBtn.disabled = state.money < state.nextCar.price; buyBtn.dataset.carId = state.nextCar.id; }
 						} else {
 							if(carPanel) carPanel.style.display = 'none';
@@ -283,7 +282,7 @@
 						const buyBizBtn = document.getElementById('buyBusinessBtn');
 						if(nextBiz){
 							if(bizPanel) bizPanel.style.display = '';
-							bizShopInfo.textContent = `${nextBiz.name} — Preis: $${nextBiz.price} — Kapazität: ${nextBiz.capacity} — Rep/Sale: ${nextBiz.reputationBoost} (verfügbar ab Tick ${nextBiz.unlockTick})`;
+							bizShopInfo.textContent = `${nextBiz.name} — Preis: $${nextBiz.price} — Kapazität: ${nextBiz.capacity} — Rep/Sale: ${nextBiz.reputationBoost} `;
 							if(buyBizBtn){ buyBizBtn.disabled = state.money < nextBiz.price; buyBizBtn.dataset.businessId = nextBiz.id; }
 						}else{
 							if(bizPanel) bizPanel.style.display = '';
