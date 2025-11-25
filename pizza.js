@@ -29,12 +29,12 @@ class PizzaGame {
     ];
     this.currentCarId = 'fiat';
     // Business system
-    // catalog: id, name, reputationBoost (per sale), price, unlockTick
+    // catalog: id, name, reputationBoost (per sale), price, priceMultiplier, capacity (oven slots), unlockTick
     this.businessCatalog = [
-      { id: 'foodtruck', name: 'Food Truck', reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, unlockTick: 0 },
-      { id: 'einraum', name: 'Einraumpizzeria', reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, unlockTick: 50 },
-      { id: 'pizzeria', name: 'Pizzeria', reputationBoost: 0.5, price: 2000, priceMultiplier: 1.5, unlockTick: 200 },
-      { id: 'superstore', name: 'Pizza Super Store', reputationBoost: 1.0, price: 10000, priceMultiplier: 2.0, unlockTick: 500 }
+      { id: 'foodtruck', name: 'Food Truck', reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, capacity: 6, unlockTick: 0 },
+      { id: 'einraum', name: 'Einraumpizzeria', reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, capacity: 12, unlockTick: 50 },
+      { id: 'pizzeria', name: 'Pizzeria', reputationBoost: 0.5, price: 2000, priceMultiplier: 1.5, capacity: 24, unlockTick: 200 },
+      { id: 'superstore', name: 'Pizza Super Store', reputationBoost: 1.0, price: 10000, priceMultiplier: 2.0, capacity: 48, unlockTick: 500 }
     ];
     this.currentBusinessId = 'foodtruck';
     this.onUpdate = typeof opts.onUpdate === 'function' ? opts.onUpdate : () => {};
@@ -129,8 +129,17 @@ class PizzaGame {
   // create one pizza (manual action); try to serve immediately
   makePizza() {
     // need 4 ingredient units per pizza
+    // enforce ingredient availability
     if (this.ingredients < 4) {
       this.lastMessage = 'Not enough ingredients to make pizza';
+      this.notify();
+      return false;
+    }
+    // enforce oven capacity defined by current business
+    const biz = this.getCurrentBusiness();
+    const capacity = (biz && typeof biz.capacity !== 'undefined') ? biz.capacity : Infinity;
+    if (this.pizzas >= capacity) {
+      this.lastMessage = 'Oven full';
       this.notify();
       return false;
     }
@@ -229,7 +238,7 @@ class PizzaGame {
   _serveCustomers() {
     let sold = 0;
     const biz = this.getCurrentBusiness();
-    // serve all waiting customers as long as pizzas are available (no capacity limit)
+    // serve all waiting customers as long as pizzas are available (no capacity limit(verfügbar ab Tick 50))
     while (this.pizzas > 0 && this.customers.length > 0) {
       // serve first waiting customer
       this.pizzas -= 1;
