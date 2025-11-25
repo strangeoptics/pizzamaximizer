@@ -2,6 +2,7 @@ class PizzaGame {
   constructor(opts = {}) {
     this.tick = 0;
     this.pizzas = 0;
+    this.totalSold = 0;
     // customers is a queue of waiting customers {id, waited}
     this.customers = [];
     // ingredient units (integer). Each pizza consumes 4 units.
@@ -247,6 +248,7 @@ class PizzaGame {
       const repGain = biz ? biz.reputationBoost : 0.1;
       this.reputation = Math.min(200, this.reputation + repGain);
       sold += 1;
+      this.totalSold += 1;
     }
     if (sold > 0) {
       this.lastMessage = `Served ${sold} customer(s)`;
@@ -258,6 +260,7 @@ class PizzaGame {
     if (this.running) this.stop();
     this.tick = 0;
     this.pizzas = 0;
+    this.totalSold = 0;
     this.customers = [];
     this.money = 0;
     this.reputation = 100;
@@ -270,6 +273,7 @@ class PizzaGame {
     const payload = {
       tick: this.tick,
       pizzas: this.pizzas,
+      totalSold: this.totalSold,
       customers: (this.customers && this.customers.length) || 0,
       ingredients: this.ingredients,
       ingredientPrice: this.ingredientPrice,

@@ -161,7 +161,7 @@
 					onUpdate: state => {
 						document.getElementById('headerTick').textContent = state.tick;
 						document.getElementById('pizzas').textContent = state.pizzas;
-						document.getElementById('headerPizzas').textContent = state.pizzas;
+						document.getElementById('headerPizzas').textContent = state.totalSold;
 						document.getElementById('customers').textContent = state.customers;
 						document.getElementById('money').textContent = state.money.toFixed(2);
 						document.getElementById('rep').textContent = state.reputation.toFixed(0);
@@ -349,7 +349,7 @@
 
 				document.getElementById('exportBtn').addEventListener('click', ()=>{
 					const s = JSON.stringify({
-						tick: game.tick, pizzas: game.pizzas, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, currentCarId: game.currentCarId, currentBusinessId: game.currentBusinessId
+						tick: game.tick, pizzas: game.pizzas, totalSold: game.totalSold, customers: (game.customers && game.customers.length) || 0, ingredients: game.ingredients, ingredientPrice: game.ingredientPrice, worker: {fetching: game.worker.fetching, remaining: game.worker.remaining}, money: game.money, reputation: game.reputation, price: game.price, baseCustomers: game.baseCustomers, intervalMs: game.intervalMs, currentCarId: game.currentCarId, currentBusinessId: game.currentBusinessId
 					}, null, 2);
 					document.getElementById('stateJson').value = s;
 				});
@@ -357,7 +357,7 @@
 					const txt = document.getElementById('stateJson').value;
 					try{
 						const obj = JSON.parse(txt);
-						['tick','pizzas','money','reputation','price','baseCustomers','intervalMs','ingredients','ingredientPrice'].forEach(k=>{ if(typeof obj[k] !== 'undefined') game[k] = obj[k]; });
+						['tick','pizzas','totalSold','money','reputation','price','baseCustomers','intervalMs','ingredients','ingredientPrice'].forEach(k=>{ if(typeof obj[k] !== 'undefined') game[k] = obj[k]; });
 						// customers imported as a number -> create that many waiting customers
 						if(typeof obj.customers !== 'undefined'){
 							const n = parseInt(obj.customers) || 0;
