@@ -71,13 +71,13 @@
 									<div class="stat">Worker: <span id="worker" class="value">idle</span></div>
 									<div class="stat">Ingredient Price: $<span id="ingPrice" class="value">0</span></div>
 								</div>
-								<div style="margin-top:8px;display:grid;gap:8px">
+								<div class="stats" style="margin-top:8px;">
 									<div class="stat">Current Car: <span id="currentCar" class="value tooltip-target" data-tooltip="Size: - | Speed: -">Fiat Uno</span></div>
-									<div style="display:flex;gap:8px;align-items:center">
-										<button id="sendWorkerBtn">Send Worker</button>
-										<div style="margin-left:12px">&nbsp;</div>
-									</div>
-									<hr>
+									<div class="stat">Upgrade: <span id="shopInfo" class="value">No upgrade available</span></div>
+								</div>
+								<div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+									<button id="sendWorkerBtn">Send Worker</button>
+									<button id="buyCarBtn" style="display:none">Buy Car</button>
 								</div>
 							</fieldset>
 
@@ -94,12 +94,7 @@
 									</div>
 								</fieldset>
 
-								<!-- Car Shop: separater Panel below Business -->
-								<fieldset id="carShopPanel" style="margin-top:12px;display:none;">
-									<legend>Car Shop</legend>
-									<div id="shopInfo" style="margin-top:6px">No car available yet</div>
-									<button id="buyCarBtn" style="margin-top:6px;">Buy Car</button>
-								</fieldset>
+
 							</div>
 							</div>
 						</div>
@@ -250,16 +245,26 @@
 						}
 						const shopInfo = document.getElementById('shopInfo');
 						const buyBtn = document.getElementById('buyCarBtn');
-						const carPanel = document.getElementById('carShopPanel');
 						// Use explicit availableCarsCount (from notify) to decide visibility
 						if(state.availableCarsCount && state.availableCarsCount > 0 && state.nextCar){
-							if(carPanel) carPanel.style.display = '';
-							shopInfo.textContent = `${state.nextCar.name} — Preis: $${state.nextCar.price} — Größe: ${state.nextCar.size} — Speed: ${state.nextCar.speed}`;
-							if(buyBtn){ buyBtn.disabled = state.money < state.nextCar.price; buyBtn.dataset.carId = state.nextCar.id; }
+							shopInfo.classList.add('tooltip-target');
+							shopInfo.textContent = `${state.nextCar.name} — Preis: $${state.nextCar.price}`;
+							shopInfo.setAttribute('data-tooltip', `Size: ${state.nextCar.size} | Speed: ${state.nextCar.speed}`);
+							if(buyBtn){ 
+								buyBtn.style.display = '';
+								buyBtn.disabled = state.money < state.nextCar.price; 
+								buyBtn.dataset.carId = state.nextCar.id; 
+							}
 						} else {
-							if(carPanel) carPanel.style.display = 'none';
-							if(shopInfo) shopInfo.textContent = 'No car available yet';
-							if(buyBtn){ buyBtn.disabled = true; delete buyBtn.dataset.carId; }
+							if(shopInfo) {
+								shopInfo.textContent = 'No upgrade available';
+								shopInfo.classList.remove('tooltip-target');
+								shopInfo.removeAttribute('data-tooltip');
+							}
+							if(buyBtn){ 
+								buyBtn.style.display = 'none';
+								delete buyBtn.dataset.carId; 
+							}
 						}
 
 						// business panel update
