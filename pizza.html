@@ -237,13 +237,14 @@
 						const shopInfo = document.getElementById('shopInfo');
 						const buyBtn = document.getElementById('buyCarBtn');
 						const carPanel = document.getElementById('carShopPanel');
-						if(state.nextCar){
+						// Use explicit availableCarsCount (from notify) to decide visibility
+						if(state.availableCarsCount && state.availableCarsCount > 0 && state.nextCar){
 							if(carPanel) carPanel.style.display = '';
 							shopInfo.textContent = `${state.nextCar.name} — Preis: $${state.nextCar.price} — Größe: ${state.nextCar.size} — Speed: ${state.nextCar.speed} (verfügbar ab Tick ${state.nextCar.unlockTick})`;
 							if(buyBtn){ buyBtn.disabled = state.money < state.nextCar.price; buyBtn.dataset.carId = state.nextCar.id; }
 						} else {
 							if(carPanel) carPanel.style.display = 'none';
-							shopInfo.textContent = 'No car available yet';
+							if(shopInfo) shopInfo.textContent = 'No car available yet';
 							if(buyBtn){ buyBtn.disabled = true; delete buyBtn.dataset.carId; }
 						}
 

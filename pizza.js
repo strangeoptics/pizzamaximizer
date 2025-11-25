@@ -268,6 +268,8 @@ class PizzaGame {
       // car state
       currentCar: this.getCurrentCar(),
       nextCar: this.getNextAvailableCar(),
+      // how many cars are available in the shop (excluding the currently owned car)
+      availableCarsCount: this.carCatalog.filter(c => c.id !== this.currentCarId && this.tick >= (c.unlockTick||0)).length,
       price: this.price,
       basePrice: this.basePrice,
       // business state
