@@ -31,10 +31,10 @@ class PizzaGame {
     // Business system
     // catalog: id, name, capacity (customers served per worker trip/tick), reputationBoost (per sale), price, unlockTick
     this.businessCatalog = [
-      { id: 'foodtruck', name: 'Food Truck', capacity: 1, reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, unlockTick: 0 },
-      { id: 'einraum', name: 'Einraumpizzeria', capacity: 3, reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, unlockTick: 50 },
-      { id: 'pizzeria', name: 'Pizzeria', capacity: 6, reputationBoost: 0.5, price: 2000, priceMultiplier: 1.5, unlockTick: 200 },
-      { id: 'superstore', name: 'Pizza Super Store', capacity: 15, reputationBoost: 1.0, price: 10000, priceMultiplier: 2.0, unlockTick: 500 }
+      { id: 'foodtruck', name: 'Food Truck', reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, unlockTick: 0 },
+      { id: 'einraum', name: 'Einraumpizzeria', reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, unlockTick: 50 },
+      { id: 'pizzeria', name: 'Pizzeria', reputationBoost: 0.5, price: 2000, priceMultiplier: 1.5, unlockTick: 200 },
+      { id: 'superstore', name: 'Pizza Super Store', reputationBoost: 1.0, price: 10000, priceMultiplier: 2.0, unlockTick: 500 }
     ];
     this.currentBusinessId = 'foodtruck';
     this.onUpdate = typeof opts.onUpdate === 'function' ? opts.onUpdate : () => {};
@@ -229,8 +229,8 @@ class PizzaGame {
   _serveCustomers() {
     let sold = 0;
     const biz = this.getCurrentBusiness();
-    const serveLimit = biz ? Math.max(1, biz.capacity) : 1;
-    while (sold < serveLimit && this.pizzas > 0 && this.customers.length > 0) {
+    // serve all waiting customers as long as pizzas are available (no capacity limit)
+    while (this.pizzas > 0 && this.customers.length > 0) {
       // serve first waiting customer
       this.pizzas -= 1;
       const c = this.customers.shift();

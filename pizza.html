@@ -73,7 +73,6 @@
 									<h2 class="small">Business</h2>
 									<div class="stats">
 										<div class="stat">Current: <span id="currentBusiness" class="value">Food Truck</span></div>
-										<div class="stat">Capacity: <span id="businessCapacity" class="value">1</span></div>
 										<div class="stat">Rep/ Sale: <span id="businessRep" class="value">0.05</span></div>
 									</div>
 									<div style="margin-top:8px">
@@ -253,7 +252,6 @@
 						const curBiz = state.currentBusiness;
 						if(curBiz){
 							document.getElementById('currentBusiness').textContent = curBiz.name;
-							document.getElementById('businessCapacity').textContent = curBiz.capacity;
 							document.getElementById('businessRep').textContent = curBiz.reputationBoost;
 						}
 						const nextBiz = state.nextBusiness;
