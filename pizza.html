@@ -85,7 +85,7 @@
 								<fieldset id="businessPanel" style="margin-top:12px;">
 									<legend>Business</legend>
 									<div class="stats">
-										<div class="stat">Current: <span id="currentBusiness" class="value">Food Truck</span></div>
+										<div class="stat">Current: <span id="currentBusiness" class="value tooltip-target" data-tooltip="Rep/Sale: - | Price: - | Mult: -">Food Truck</span></div>
 										<div class="stat">Rep/ Sale: <span id="businessRep" class="value">0.05</span></div>
 									</div>
 									<div style="margin-top:8px">
@@ -266,9 +266,17 @@
 						// business panel update
 						const bizPanel = document.getElementById('businessPanel');
 						const curBiz = state.currentBusiness;
+						const bizEl = document.getElementById('currentBusiness');
 						if(curBiz){
-							document.getElementById('currentBusiness').textContent = curBiz.name;
+							bizEl.textContent = curBiz.name;
+							// set tooltip with key properties
+							const price = typeof curBiz.price !== 'undefined' ? curBiz.price : 'n/a';
+							const mult = typeof curBiz.priceMultiplier !== 'undefined' ? curBiz.priceMultiplier : 'n/a';
+							bizEl.setAttribute('data-tooltip', `Rep/Sale: ${curBiz.reputationBoost} | Price: $${price} | Mult: ${mult}`);
 							document.getElementById('businessRep').textContent = curBiz.reputationBoost;
+						} else {
+							bizEl.textContent = 'none';
+							bizEl.setAttribute('data-tooltip', 'No business');
 						}
 						const nextBiz = state.nextBusiness;
 						const bizShopInfo = document.getElementById('bizShopInfo');
