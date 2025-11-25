@@ -1,5 +1,7 @@
 # PizzaMaximizer
 
+![PizzaMaximizer Logo](pizzamaximizer_logo.jpg)
+
 Kurz: Ein kleines Browser-Spiel/Prototyp, in dem du Pizzen herstellst, Kunden bedienst, Zutaten per Arbeiter besorgst, Autos kaufst und dein Geschäft ausbaust.
 
 **Zweck**
