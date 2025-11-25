@@ -16,6 +16,7 @@
 			legend{padding:0 6px;font-weight:600;font-size:0.95rem;color:#333}
 			.game-area{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
 			.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+			#liveValuesPanel .stats{grid-template-columns:1fr 1fr 1fr}
 			.stat{padding:8px;border-radius:6px;background:#f9f9f9}
 			.controls{display:flex;flex-wrap:wrap;gap:8px}
 			button{padding:8px 12px;border-radius:6px;border:1px solid #ccc;background:#fafafa;cursor:pointer}
@@ -42,14 +43,16 @@
 							<div>
 							<fieldset id="liveValuesPanel" style="margin-bottom:12px;">
 								<legend>Live Values</legend>
-							<div id="stats" class="stats">
-								<div class="stat">Tick: <span id="tick" class="value">0</span></div>
-								<div class="stat">Pizzas in Oven: <span id="pizzas" class="value">0</span></div>
-								<div class="stat">Customers: <span id="customers" class="value">0</span></div>
-								<div class="stat">Money: $<span id="money" class="value">0</span></div>
-								<div class="stat">Price per Pizza: $<span id="pricePerPizza" class="value">0</span></div>
-								<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
-							</div>
+								<div id="stats" class="stats">
+									<div class="stat">Pizzas in Oven: <span id="pizzas" class="value">0</span></div>
+									<div class="stat">Customers: <span id="customers" class="value">0</span></div>
+									<div class="stat">Money: $<span id="money" class="value">0</span></div>
+									<div class="stat">Price per Pizza: $<span id="pricePerPizza" class="value">0</span></div>
+									<div class="stat">Reputation: <span id="rep" class="value">100</span></div>
+									<div style="display:flex;flex-direction:column;gap:8px;justify-content:center;align-items:center">
+										<button id="makePizzaBtn" class="primary" style="width:100%;margin:0">Make Pizza</button>
+									</div>
+								</div>
 							</fieldset>
 
 							<!-- Ingredients Management Area -->
@@ -102,9 +105,8 @@
 								<button id="stepBtn">Step</button>
 								<button id="resetBtn">Reset</button>
 								<button id="toggleDevBtn">Hide Dev</button>
-								<button id="makePizzaBtn" class="primary">Make Pizza</button>
-							<button id="slowerBtn">Speed -</button>
-							<button id="fasterBtn">Speed +</button>
+								<button id="slowerBtn">Speed -</button>
+								<button id="fasterBtn">Speed +</button>
 						</div>
 						<footer>Controlled by buttons; values update each tick. | Speed: <span id="speed" class="value">1000</span> ms</footer>
 						</div>
@@ -155,7 +157,6 @@
 			document.addEventListener('DOMContentLoaded', ()=>{
 				const game = new PizzaGame({
 					onUpdate: state => {
-						document.getElementById('tick').textContent = state.tick;
 						document.getElementById('headerTick').textContent = state.tick;
 						document.getElementById('pizzas').textContent = state.pizzas;
 						document.getElementById('headerPizzas').textContent = state.pizzas;
