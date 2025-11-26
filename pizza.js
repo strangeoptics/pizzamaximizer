@@ -25,8 +25,8 @@ class PizzaGame {
     // catalog: id, name, size (ingredient units), speed (ticks to return), price, unlockTick
     this.carCatalog = [
       { id: 'fiat', name: 'Fiat Uno', size: 100, speed: 10, price: 0, unlockTick: 0 },
-      { id: 'kangoo', name: 'Renault Kangoo', size: 220, speed: 7, price: 300, unlockTick: 50 },
-      { id: 'transit', name: 'Ford Transit', size: 500, speed: 4, price: 900, unlockTick: 150 }
+      { id: 'kangoo', name: 'Renault Kangoo', size: 220, speed: 8, price: 300, unlockTick: 50 },
+      { id: 'transit', name: 'Ford Transit', size: 500, speed: 6, price: 900, unlockTick: 150 }
     ];
     this.currentCarId = 'fiat';
     // Employee system
@@ -35,10 +35,10 @@ class PizzaGame {
     // Business system
     // catalog: id, name, reputationBoost (per sale), price, priceMultiplier, capacity (oven slots), maxEmployees, unlockTick
     this.businessCatalog = [
-      { id: 'foodtruck', name: 'Food Truck', reputationBoost: 0.05, price: 0, priceMultiplier: 1.0, capacity: 6, maxEmployees: 1, unlockTick: 0 },
-      { id: 'einraum', name: 'Einraumpizzeria', reputationBoost: 0.2, price: 500, priceMultiplier: 1.2, capacity: 12, maxEmployees: 3, unlockTick: 50 },
-      { id: 'pizzeria', name: 'Pizzeria', reputationBoost: 0.5, price: 2000, priceMultiplier: 1.5, capacity: 24, maxEmployees: 10, unlockTick: 200 },
-      { id: 'superstore', name: 'Pizza Super Store', reputationBoost: 1.0, price: 10000, priceMultiplier: 2.0, capacity: 48, maxEmployees: 50, unlockTick: 500 }
+      { id: 'foodtruck', name: 'Food Truck', reputationBoost: 0.025, price: 0, priceMultiplier: 1.0, capacity: 6, maxEmployees: 1, unlockTick: 0 },
+      { id: 'einraum', name: 'Einraumpizzeria', reputationBoost: 0.1, price: 500, priceMultiplier: 1.2, capacity: 12, maxEmployees: 3, unlockTick: 50 },
+      { id: 'pizzeria', name: 'Pizzeria', reputationBoost: 0.25, price: 2000, priceMultiplier: 1.5, capacity: 24, maxEmployees: 10, unlockTick: 200 },
+      { id: 'superstore', name: 'Pizza Super Store', reputationBoost: 0.5, price: 10000, priceMultiplier: 2.0, capacity: 48, maxEmployees: 50, unlockTick: 500 }
     ];
     this.currentBusinessId = 'foodtruck';
     this.onUpdate = typeof opts.onUpdate === 'function' ? opts.onUpdate : () => {};
@@ -72,9 +72,9 @@ class PizzaGame {
     this.tick += 1;
 
     // spawn new customers
-    // more reputation => more customers. For every 50 reputation points above 100, add one extra customer.
+    // more reputation => more customers. For every 10 reputation points above 100, add one extra customer.
     const baseSpawn = this.baseCustomers + Math.floor(Math.random() * 3);
-    const repExtra = Math.max(0, Math.floor((this.reputation - 100) / 50));
+    const repExtra = Math.max(0, Math.floor((this.reputation - 100) / 10));
     const newCust = baseSpawn + repExtra;
     for (let i = 0; i < newCust; i++) {
       this.customers.push({ id: this._nextCustomerId++, waited: 0 });
@@ -122,8 +122,8 @@ class PizzaGame {
       this.lastMessage = null;
     }
 
-    // normalize reputation
-    this.reputation = Math.max(0, Math.min(200, this.reputation));
+    // normalize reputation (lower bound 0, no upper bound)
+    this.reputation = Math.max(0, this.reputation);
 
     // handle worker countdown
     if (this.worker.fetching) {
@@ -287,8 +287,8 @@ class PizzaGame {
       this.pizzas -= 1;
       const c = this.customers.shift();
       this.money += this.price;
-      const repGain = biz ? biz.reputationBoost : 0.1;
-      this.reputation = Math.min(200, this.reputation + repGain);
+      const repGain = biz ? biz.reputationBoost : 0.05;
+      this.reputation = this.reputation + repGain;
       sold += 1;
       this.totalSold += 1;
     }
