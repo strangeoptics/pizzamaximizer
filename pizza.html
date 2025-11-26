@@ -39,6 +39,39 @@
 			.tooltip-target{position:relative;cursor:help;border-bottom:1px dotted #999}
 			.tooltip-target:hover::after{content:attr(data-tooltip);position:absolute;bottom:125%;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:6px 10px;border-radius:4px;font-size:0.85rem;white-space:nowrap;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 			.tooltip-target:hover::before{content:'';position:absolute;bottom:120%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#333;z-index:1000}
+
+			/* Rainbow Border Animation */
+			@keyframes rainbow {
+				0% { background-position: 0% 50%; }
+				50% { background-position: 100% 50%; }
+				100% { background-position: 0% 50%; }
+			}
+			.rainbow-border {
+				position: relative;
+				border-color: transparent !important;
+				background-clip: padding-box;
+			}
+			.rainbow-border::before {
+				content: '';
+				position: absolute;
+				top: -2px; left: -2px; right: -2px; bottom: -2px;
+				background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+				background-size: 400%;
+				z-index: -1;
+				border-radius: 8px;
+				animation: rainbow 20s linear infinite;
+			}
+			.rainbow-border::after {
+				content: '';
+				position: absolute;
+				top: -2px; left: -2px; right: -2px; bottom: -2px;
+				background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+				background-size: 400%;
+				z-index: -2;
+				filter: blur(10px);
+				border-radius: 8px;
+				animation: rainbow 20s linear infinite;
+			}
 		</style>
 	</head>
 	<body>
@@ -47,7 +80,7 @@
 			<div class="split">
 				<!-- Upper: Game -->
 				<div class="panel" id="gamePanel">
-					<div class="game-area">
+					<div class="game-area rainbow-border">
 							<div>
 							<fieldset id="liveValuesPanel" style="margin-bottom:12px;">
 								<legend>Live Values</legend>
