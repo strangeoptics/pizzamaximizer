@@ -24,9 +24,11 @@ class PizzaGame {
     // Car system
     // catalog: id, name, size (ingredient units), speed (ticks to return), price, unlockTick
     this.carCatalog = [
-      { id: 'fiat', name: 'Fiat Uno', size: 100, speed: 10, price: 0, unlockTick: 0 },
-      { id: 'kangoo', name: 'Renault Kangoo', size: 220, speed: 8, price: 300, unlockTick: 50 },
-      { id: 'transit', name: 'Ford Transit', size: 500, speed: 6, price: 900, unlockTick: 150 }
+      { id: 'fiat', name: 'Vespa', size: 100, speed: 10, price: 0, unlockTick: 0 },
+      { id: 'piaggio', name: 'Piaggio Ape', size: 220, speed: 8, price: 300, unlockTick: 50 },
+      { id: 'qubo', name: 'Fiat Qubo', size: 400, speed: 6, price: 900, unlockTick: 150 },
+      { id: 'scudo', name: 'Fiat Scudo', size: 500, speed: 5, price: 1500, unlockTick: 250 },
+      { id: 'ducato', name: 'Fiat Ducato', size: 800, speed: 5, price: 3000, unlockTick: 500 }
     ];
     this.currentCarId = 'fiat';
     // Employee system
